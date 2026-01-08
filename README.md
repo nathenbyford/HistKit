@@ -9,10 +9,13 @@ HistKit is a Python library for working with histogram data. It provides a `Hist
 - Pretty print histograms in a table format.
 - Visualize histograms using `matplotlib`.
 
+
 ## Installation
 
+You can install HistKit directly from GitHub using pip:
+
 ```bash
-pip install histkit
+pip install git+https://github.com/nathenbyford/HistKit.git
 ```
 
 ## Usage
