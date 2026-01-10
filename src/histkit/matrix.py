@@ -1,9 +1,11 @@
+from collections.abc import Sequence
+from typing import Union
 import numpy as np
 from .hist import Histogram
 
 @dataclass(frozen=True, slots=True)
 class HistogramMatrix:
-	rows: list[list[Hhistogram]]
+	rows: list[list[Histogram]]
 
 	@property
 	def shape(self) -> tuple[int, int]:
@@ -11,33 +13,31 @@ class HistogramMatrix:
 
 	@classmethod
 	def from_rows(cls, rows: Sequence[Sequence[Histogram]]) -> "HistogramMatrix":
-		return cls([list(r) for r in rows])
+		return cls(rows)
 
 	@classmethod
 	def from_cols(cls, cols: Sequence[Sequence[Histogram]]) -> "HistogramMatrix":
 		cols_list = [list(c) for c in cols]
 		# Data checks
-		n_rows = len(cols_list[0])
-		# Check n_rows for empty rows
+		n_rows = len(cols[0])
+		# Check n_rows for empty rows and equal number of rows
 
 		rows = [[cols_list[j][i] for j in range(len(cols_list))] for i in range(n_rows)]
 		return cls(rows)
 
 	@property		
-	def T(self) -> "HihstogramMatrix":
+	def T(self) -> "HistogramMatrix":
 		return self.transpose()
 		
 
 def hmat(
 	hists: Union[
 		Sequence[Histogram],
-		Sequence[Sequence[Histogram]],
-		Iterable[Histogram],
-		Iterable[Sequence[Histogram]],
+		Sequence[Sequence[Histogram]]
 	],
 	*,
 	axis: int = 0,
-) -> HihstogramMatrix:
+) -> HistogramMatrix:
 	"""
 	Constructor
 
@@ -55,12 +55,12 @@ def hmat(
 
 	first = hists_list[0]
 
-	if instance(first, Histogram):
+	if isinstance(first, Histogram):
 		one_d = list(hists_list)
 		if axis == 0:
-			HistogramMatrix.from_rows([[h] for h in one_d]) # (n, 1)
+			return HistogramMatrix.from_rows([[h] for h in one_d]) # (n, 1)
 		else:
-			HistogramMatrix.from_cols([one_d])
+			return HistogramMatrix.from_cols([one_d])
 
 	two_d = [list(row) for row in hists_list]
 	if axis == 0:

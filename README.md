@@ -1,6 +1,6 @@
 # HistKit
 
-HistKit is a Python library for working with histogram data. It provides a `Histogram` dataclass that makes it easy to create, manipulate, and analyze histograms.
+HistKit is a Python library for working with histogram data. It provides a `Histogram` and `HistogramMatrix` dataclasses that makes it easy to create, manipulate, and analyze histograms.
 
 ## Features
 
