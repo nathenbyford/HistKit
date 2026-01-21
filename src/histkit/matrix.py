@@ -28,7 +28,14 @@ class HistogramMatrix:
 
 	@property		
 	def T(self) -> "HistogramMatrix":
-		return self.transpose()
+		return self.from_cols(self.rows)
+	
+	def __getitem__(self, key):
+		if isinstance(key, tuple):
+			row, col = key
+			return self.rows[row][col]
+		else:
+			return self.rows[key]
 		
 
 def hmat(
