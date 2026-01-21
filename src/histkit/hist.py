@@ -1,4 +1,4 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, asdict
 import numpy as np
 
 @dataclass(frozen=True)
@@ -36,7 +36,11 @@ class Histogram:
         """Creates a Histogram object directly from a list of numbers."""
         counts, breaks = np.histogram(data, bins=bins)
         return cls(breaks=breaks, counts=counts)
-
+    
+    @classmethod
+    def as_dict(self):
+        return asdict(self)
+    
     def plot(self, **kwargs):
         """Plots the histogram using matplotlib."""
         from .plot import plot_hist

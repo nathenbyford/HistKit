@@ -1,3 +1,4 @@
+from dataclasses import dataclass
 from collections.abc import Sequence
 from typing import Union
 import numpy as np
@@ -67,3 +68,35 @@ def hmat(
 		return HistogramMatrix.from_rows(two_d)
 	else:
 		return HistogramMatrix.from_cols(two_d)
+
+# Currently still in development 
+def plot_hists(hists: HistogramMatrix):
+    
+    import matplotlib.pyplot as plt
+    
+    fig, ax = plt.subplots()
+    
+    dists = hists.rows[:]
+    y_offsets = np.arange(len(dists))
+    
+    for y, g in zip(y_offsets, dists):
+        
+        hist = g[0].counts
+        edges = g[0].breaks
+        
+        venters = 0.5 * (edges[:-1] + edges[1:])
+        
+        ax.hist(
+            edges[:-1],
+            bins=edges,
+            weights=hist,
+            width=np.diff(edges)
+        )
+    
+    ax.set_yticks(y_offsets)
+    ax.set_yticklabels(dists)
+    ax.set_xlabel('Vals')
+    ax.set_ylabel('group')
+    plt.show()
+    
+    
