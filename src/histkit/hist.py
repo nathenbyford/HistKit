@@ -40,7 +40,12 @@ class Histogram:
     @classmethod
     def as_dict(self):
         return asdict(self)
-    
+
+    @property
+    def cdf(self):
+        """Cumulative distribution function representation"""
+        return np.cumsum(self.p).tolist()
+
     def plot(self, **kwargs):
         """Plots the histogram using matplotlib."""
         from .plot import plot_hist
