@@ -11,7 +11,7 @@ def wasserstein_distance(h1: Histogram, h2: Histogram, p: int = 2) -> float:
     The Wasserstein-p distance is defined as the integral of the 
     difference between the quantile functions to the power p of the 
     two distributions:
-    W_p = sqrt( integral_0^1 |F_1^-1(t) - F_2^-1(t)|^p dt )
+    W_p = ( integral_0^1 |F_1^-1(t) - F_2^-1(t)|^p dt )^(1/p)
     
     Args:
         h1 (Histogram): First histogram.
@@ -19,24 +19,21 @@ def wasserstein_distance(h1: Histogram, h2: Histogram, p: int = 2) -> float:
         p: power of the integrand.
         
     Returns:
-        float: The squared Wasserstein-2 distance.
+        float: The squared Wasserstein-p distance.
     """
-    # Get all unique CDF values
-    cdf1 = np.concatenate([[0], h1.cdf])
-    cdf2 = np.concatenate([[0], h2.cdf])
+    # Get all unique CDF breaks
+    all_breaks = np.union1d(h1.breaks, h2.breaks)
 
     # create grid of histogram breaks
     all_cdf_breaks = np.unique(np.concatenate([cdf1, cdf2]))
     
-    # Compute quantile functions (inverse CDFs)
-    quantile1 = np.interp(all_cdf_breaks, cdf1, h1.breaks)
-    quantile2 = np.interp(all_cdf_breaks, cdf2, h2.breaks)
+    # Compute CDF values at all breaks
+    cdf1 = np.interp(all_breaks, h1.breaks[1:], h1.cdf, left=0.0, right=1.0)
+    cdf2 = np.interp(all_breaks, h2.breaks[1:], h2.cdf, left=0.0, right=1.0)
     
-    # Compute exact iintegral over each peice
-    dist = 0.0
-    for i in range(len(all_cdf_breaks) - 1):
-        delta_u = all_cdf_breaks[i+1] - all_cdf_breaks[i]
-        diff = (quantile1[i] - quantile2[i]) ** p
-        dist += diff * delta_u
-    
-    return np.sqrt(dist)
+    # Differences
+    widths = np.diff(all_breaks)
+
+    # Calculate value with special case for p=2 using np.sqrt
+    integral = np.dot(np.abs(cdf1[:-1] - cdf2[:-1]) ** p, widths)
+    return float(np.sqrt(integral) if p == 2 else integral ** (1 / p))
