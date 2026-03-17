@@ -23,9 +23,6 @@ def wasserstein_distance(h1: Histogram, h2: Histogram, p: int = 2) -> float:
     """
     # Get all unique CDF breaks
     all_breaks = np.union1d(h1.breaks, h2.breaks)
-
-    # create grid of histogram breaks
-    all_cdf_breaks = np.unique(np.concatenate([cdf1, cdf2]))
     
     # Compute CDF values at all breaks
     cdf1 = np.interp(all_breaks, h1.breaks[1:], h1.cdf, left=0.0, right=1.0)
