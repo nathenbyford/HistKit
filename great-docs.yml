@@ -21,9 +21,9 @@ dynamic: true
 # API Discovery Settings
 # ----------------------
 # Exclude items from auto-documentation
-# exclude:
-#   - InternalClass
-#   - helper_function
+exclude:
+  - InternalClass
+  - helper_function
 
 # Logo & Favicon
 # ---------------
@@ -85,6 +85,7 @@ reference:
 #   toc: true                  # Show table of contents (default: true)
 #   toc-depth: 2               # TOC heading depth (default: 2)
 #   toc-title: On this page    # TOC title (default: "On this page")
+navbar_style: mint
 
 # Jupyter Kernel
 # --------------
