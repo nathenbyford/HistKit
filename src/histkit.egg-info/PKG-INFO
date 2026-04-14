@@ -1,0 +1,111 @@
+Metadata-Version: 2.4
+Name: histkit
+Version: 0.1.0
+Summary: Library for histogram valued data analysis in Python.
+License: BSD 3-Clause License
+        
+        Copyright (c) 2025, Nate Byford
+        
+        Redistribution and use in source and binary forms, with or without
+        modification, are permitted provided that the following conditions are met:
+        
+        1. Redistributions of source code must retain the above copyright notice, this
+           list of conditions and the following disclaimer.
+        
+        2. Redistributions in binary form must reproduce the above copyright notice,
+           this list of conditions and the following disclaimer in the documentation
+           and/or other materials provided with the distribution.
+        
+        3. Neither the name of the copyright holder nor the names of its
+           contributors may be used to endorse or promote products derived from
+           this software without specific prior written permission.
+        
+        THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+        AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+        IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+        DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+        FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+        DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+        SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+        CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+        OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+        OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+        
+Project-URL: Homepage, https://github.com/nathenbyford/HistKit
+Project-URL: Repository, https://github.com/nathenbyford/HistKit
+Requires-Python: >=3.9
+Description-Content-Type: text/markdown
+License-File: LICENSE
+Requires-Dist: numpy
+Requires-Dist: matplotlib
+Provides-Extra: dev
+Requires-Dist: pytest; extra == "dev"
+Requires-Dist: ruff; extra == "dev"
+Dynamic: license-file
+
+# HistKit
+
+HistKit is a Python library for working with histogram data. It provides a `Histogram` and `HistogramMatrix` dataclasses that makes it easy to create, manipulate, and analyze histograms.
+
+## Features
+
+- Create histograms from raw data or from breaks and counts.
+- Calculate histogram properties like mean, standard deviation, and probabilities.
+- Pretty print histograms in a table format.
+- Visualize histograms using `matplotlib`.
+
+
+## Installation
+
+You can install HistKit directly from GitHub using pip:
+
+```bash
+pip install git+https://github.com/nathenbyford/HistKit.git
+```
+
+## Usage
+
+Here is a simple example of how to use HistKit:
+
+```python
+import numpy as np
+from histkit.hist import Histogram
+
+# Create a histogram from raw data
+data = np.random.normal(size=1000)
+hist = Histogram.from_raw_data(data, bins=10)
+
+# Print the histogram
+print(hist)
+
+# Get histogram properties
+print(f"Mean: {hist.mean}")
+print(f"Standard deviation: {hist.std}")
+
+# Plot the histogram
+hist.plot(color='blue', edgecolor='black')
+```
+
+This will output:
+
+```
+          X                   p      
+Bin_1     [ -3.06 ; -2.48 )          0.011   
+Bin_2     [ -2.48 ; -1.9 )           0.033   
+Bin_3     [ -1.9 ; -1.32 )           0.093   
+Bin_4     [ -1.32 ; -0.742 )         0.16    
+Bin_5     [ -0.742 ; -0.163 )        0.201   
+Bin_6     [ -0.163 ; 0.415 )         0.222   
+Bin_7     [ 0.415 ; 0.994 )          0.168   
+Bin_8     [ 0.994 ; 1.57 )           0.081   
+Bin_9     [ 1.57 ; 2.15 )            0.024   
+Bin_10    [ 2.15 ; 2.73 ]            0.007   
+
+mean = -0.163...         std = 0.988...
+Mean: -0.163...
+Standard deviation: 0.988...
+```
+
+## Contributing
+
+Contributions are welcome! Please open an issue or submit a pull request on GitHub.

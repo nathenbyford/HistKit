@@ -1,0 +1,13 @@
+LICENSE
+README.md
+pyproject.toml
+src/histkit/barycenter.py
+src/histkit/distances.py
+src/histkit/hist.py
+src/histkit/matrix.py
+src/histkit/plot.py
+src/histkit.egg-info/PKG-INFO
+src/histkit.egg-info/SOURCES.txt
+src/histkit.egg-info/dependency_links.txt
+src/histkit.egg-info/requires.txt
+src/histkit.egg-info/top_level.txt
