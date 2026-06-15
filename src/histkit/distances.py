@@ -24,13 +24,44 @@ def wasserstein_distance(h1: Histogram, h2: Histogram, p: int = 2) -> float:
     # Get all unique CDF breaks
     all_breaks = np.union1d(h1.breaks, h2.breaks)
     
-    # Compute CDF values at all breaks
-    cdf1 = np.interp(all_breaks, h1.breaks[1:], h1.cdf, left=0.0, right=1.0)
-    cdf2 = np.interp(all_breaks, h2.breaks[1:], h2.cdf, left=0.0, right=1.0)
+    # Compute quantile values at all breaks
+    q1 = np.interp(all_breaks, h1.cdf, h1.breaks[1:])
+    q2 = np.interp(all_breaks, h2.cdf, h2.breaks[1:])
     
     # Differences
-    widths = np.diff(all_breaks)
+    dt = np.diff(all_breaks)
 
     # Calculate value with special case for p=2 using np.sqrt
-    integral = np.dot(np.abs(cdf1[:-1] - cdf2[:-1]) ** p, widths)
-    return float(np.sqrt(integral) if p == 2 else integral ** (1 / p))
+    integral = np.dot(np.abs(q1[:-1] - q2[:-1]) ** p, dt)
+    return float(np.power(integral, 1/p))
+
+def kl_divergence(h1: Histogram, h2: Histogram, epsilon: float = 1e-12):
+    """
+    Computes the Kullback Leibler (KL) Divergence of two histograms.
+
+    This implementation treats the histograms as probability density.
+
+    The KL divergence is defined as the sum of the scaled log ratio
+    of the two distribution functions across the range of values:
+    KL = sum_1^n p_i log( p_i / q_i )
+    """
+    # Get all unique CDF breaks
+    all_breaks = np.union1d(h1.breaks, h2.breaks)
+
+    # Compute all CDF values
+    cdf1 = np.interp(all_breaks, h1.breaks[1:], h1.cdf, left=0.0, right=1.0)
+    cdf2 = np.interp(all_breaks, h2.breaks[1:], h2.cdf, left=0.0, right=1.0)
+
+    p = np.diff(cdf1)
+    q = np.diff(cdf2)
+
+    # Mask to remove 0 probarbilities and prevent log(0) or dividing by 0.
+    mask = p > 0
+    p = p[mask]
+    q = np.clip(q[mask], epsilon, 1.0)
+
+    # normalize
+    p /= np.sum(p)
+    q /= np.sum(q)
+
+    return float(np.sum(p * np.log(p / q)))
