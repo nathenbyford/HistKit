@@ -1,4 +1,5 @@
 import numpy as np
+import ot
 from .hist import Histogram
 from .hist2d import Histogram2D
 
@@ -158,3 +159,116 @@ def sliced_wasserstein_distance(
         sum_dist_p += w_dist ** p
         
     return float(np.power(sum_dist_p / n_projections, 1/p))
+
+
+def wasserstein2d(
+    hist1: Histogram2D,
+    hist2: Histogram2D,
+    p: int = 2,
+    return_plan: bool = False,
+):
+    """
+    Exact p-Wasserstein distance between two 2D histograms.
+
+    Parameters
+    ----------
+    hist1, hist2 : Histogram2D
+
+    p : int
+        Wasserstein order (1 or 2).
+
+    return_plan : bool
+        If True, also return the optimal transport plan.
+
+    Returns
+    -------
+    distance : float
+
+    plan : ndarray, optional
+    """
+
+    X = hist1.bin_centers
+    Y = hist2.bin_centers
+
+    a = hist1.histogram_mass
+    b = hist2.histogram_mass
+
+    # cost matrix
+    M = ot.dist(X, Y, metric="euclidean") ** p
+
+    plan = ot.emd(a, b, M)
+
+    cost = np.sum(plan * M)
+
+    distance = cost ** (1 / p)
+
+    if return_plan:
+        return distance, plan
+
+    return distance
+
+
+def kl_divergence(h1: Histogram, h2: Histogram, epsilon: float = 1e-12):
+    """
+    Computes the Kullback Leibler (KL) Divergence of two histograms.
+
+    This implementation treats the histograms as probability density.
+
+    The KL divergence is defined as the sum of the scaled log ratio
+    of the two distribution functions across the range of values:
+    KL = sum_1^n p_i log( p_i / q_i )
+    """
+    # Get all unique CDF breaks
+    all_breaks = np.union1d(h1.breaks, h2.breaks)
+
+    # Compute all CDF values
+    cdf1 = np.interp(all_breaks, h1.breaks[1:], h1.cdf, left=0.0, right=1.0)
+    cdf2 = np.interp(all_breaks, h2.breaks[1:], h2.cdf, left=0.0, right=1.0)
+
+    p = np.diff(cdf1)
+    q = np.diff(cdf2)
+
+    # Mask to remove 0 probabilities and prevent log(0) or dividing by 0.
+    mask = p > 0
+    p = p[mask]
+    q = np.clip(q[mask], epsilon, 1.0)
+
+    # normalize
+    p /= np.sum(p)
+    q /= np.sum(q)
+
+    return float(np.sum(p * np.log(p / q)))
+
+
+def energy_distance_2d(h1: Histogram2D, h2: Histogram2D) -> float:
+    """
+    Computes the geometric Energy Distance between two 2D spatial histograms.
+
+    Args:
+        h1 (Histogram2D): First 2D histogram.
+        h2 (Histogram2D): Second 2D histogram.
+
+    Returns:
+        float: The Energy Distance.
+    """
+    # Verify breaks match
+    if not (np.array_equal(h1.x_breaks, h2.x_breaks) and np.array_equal(h1.y_breaks, h2.y_breaks)):
+        raise ValueError("Histograms must have matching grids (x_breaks and y_breaks).")
+
+    # Get cell centroids
+    mid_x = (h1.x_breaks[:-1] + h1.x_breaks[1:]) / 2
+    mid_y = (h1.y_breaks[:-1] + h1.y_breaks[1:]) / 2
+    X, Y = np.meshgrid(mid_x, mid_y)
+    coords = np.column_stack([X.flatten(), Y.flatten()])
+
+    # Compute cell distance matrix
+    D = cdist(coords, coords, metric="euclidean")
+
+    # Extract probability densities
+    p = h1.p.flatten()
+    q = h2.p.flatten()
+
+    # D_E^2 = 2 * E[|X - Y|] - E[|X - X'|] - E[|Y - Y'|]
+    dist_sq = 2 * np.dot(p, np.dot(D, q)) - np.dot(p, np.dot(D, p)) - np.dot(q, np.dot(D, q))
+    return float(np.sqrt(max(0.0, dist_sq)))
+

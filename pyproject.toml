@@ -12,6 +12,7 @@ requires-python = ">=3.9"
 dependencies = [
     "numpy",
     "matplotlib",
+    "ot"
 ]
 
 [project.optional-dependencies]
